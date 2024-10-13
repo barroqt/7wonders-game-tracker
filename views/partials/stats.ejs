@@ -1,0 +1,15 @@
+<% Object.entries(playerStats).forEach(([player, stats]) => { %>
+<h3><%= player %></h3>
+<% civilizations.forEach(civ => { %>
+<h4><%= civ %></h4>
+<% if (stats[civ]) { %>
+<ul>
+  <li>Winrate: <%= stats[civ].winrate %>%</li>
+  <li>Total games: <%= stats[civ].totalGames %></li>
+  <li>Wins: <%= stats[civ].wins %></li>
+  <li>Average points: <%= stats[civ].avgPoints %></li>
+  <li>Max points: <%= stats[civ].maxPoints %></li>
+</ul>
+<% } else { %>
+<p>No games played with this civilization.</p>
+<% } %> <% }); %> <% }); %>

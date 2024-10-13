@@ -1,0 +1,15 @@
+<ul>
+  <% games.forEach(function(game) { %>
+  <li>
+    Game #<%= game.id %>:
+    <ul>
+      <% game.players.forEach(function(player) { %>
+      <li>
+        <%= player.name %> - <%= player.civilization %> (<%= player.points %>
+        points)
+      </li>
+      <% }); %>
+    </ul>
+  </li>
+  <% }); %>
+</ul>
