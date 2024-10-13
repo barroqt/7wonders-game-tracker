@@ -8,8 +8,6 @@ const port = 3000;
 // Set up the database
 const db = new sqlite3.Database("7wonders.db");
 
-app.use(express.static("public"));
-
 // Create or update the necessary tables
 db.serialize(() => {
   // Check if the games table exists
@@ -97,7 +95,7 @@ app.post("/add-game", (req, res) => {
 
   db.run(
     `INSERT INTO games (majid_civ, majid_points, tito_civ, tito_points, thomas_civ, thomas_points) 
-            VALUES (?, ?, ?, ?, ?, ?)`,
+          VALUES (?, ?, ?, ?, ?, ?)`,
     [majid_civ, majid_points, tito_civ, tito_points, thomas_civ, thomas_points],
     function (err) {
       if (err) {
@@ -129,36 +127,36 @@ app.get("/game-history", (req, res) => {
 app.get("/stats", (req, res) => {
   db.all(
     `
-      SELECT 
-        'Majid' as player, 
-        majid_civ as civilization, 
-        COUNT(*) as total_games,
-        COALESCE(SUM(CASE WHEN majid_points >= tito_points AND majid_points >= thomas_points THEN 1 ELSE 0 END), 0) as wins,
-        COALESCE(AVG(majid_points), 0) as avg_points,
-        COALESCE(MAX(majid_points), 0) as max_points
-      FROM games
-      GROUP BY majid_civ
-      UNION ALL
-      SELECT 
-        'Tito' as player, 
-        tito_civ as civilization, 
-        COUNT(*) as total_games,
-        COALESCE(SUM(CASE WHEN tito_points >= majid_points AND tito_points >= thomas_points THEN 1 ELSE 0 END), 0) as wins,
-        COALESCE(AVG(tito_points), 0) as avg_points,
-        COALESCE(MAX(tito_points), 0) as max_points
-      FROM games
-      GROUP BY tito_civ
-      UNION ALL
-      SELECT 
-        'Thomas' as player, 
-        thomas_civ as civilization, 
-        COUNT(*) as total_games,
-        COALESCE(SUM(CASE WHEN thomas_points >= majid_points AND thomas_points >= tito_points THEN 1 ELSE 0 END), 0) as wins,
-        COALESCE(AVG(thomas_points), 0) as avg_points,
-        COALESCE(MAX(thomas_points), 0) as max_points
-      FROM games
-      GROUP BY thomas_civ
-    `,
+    SELECT 
+      'Majid' as player, 
+      majid_civ as civilization, 
+      COUNT(*) as total_games,
+      COALESCE(SUM(CASE WHEN majid_points >= tito_points AND majid_points >= thomas_points THEN 1 ELSE 0 END), 0) as wins,
+      COALESCE(AVG(majid_points), 0) as avg_points,
+      COALESCE(MAX(majid_points), 0) as max_points
+    FROM games
+    GROUP BY majid_civ
+    UNION ALL
+    SELECT 
+      'Tito' as player, 
+      tito_civ as civilization, 
+      COUNT(*) as total_games,
+      COALESCE(SUM(CASE WHEN tito_points >= majid_points AND tito_points >= thomas_points THEN 1 ELSE 0 END), 0) as wins,
+      COALESCE(AVG(tito_points), 0) as avg_points,
+      COALESCE(MAX(tito_points), 0) as max_points
+    FROM games
+    GROUP BY tito_civ
+    UNION ALL
+    SELECT 
+      'Thomas' as player, 
+      thomas_civ as civilization, 
+      COUNT(*) as total_games,
+      COALESCE(SUM(CASE WHEN thomas_points >= majid_points AND thomas_points >= tito_points THEN 1 ELSE 0 END), 0) as wins,
+      COALESCE(AVG(thomas_points), 0) as avg_points,
+      COALESCE(MAX(thomas_points), 0) as max_points
+    FROM games
+    GROUP BY thomas_civ
+  `,
     (err, stats) => {
       if (err) {
         console.error(err);
