@@ -1,15 +1,26 @@
-<ul>
-  <% games.forEach(function(game) { %>
-  <li>
-    Game #<%= game.id %>:
-    <ul>
-      <% game.players.forEach(function(player) { %>
-      <li>
-        <%= player.name %> - <%= player.civilization %> (<%= player.points %>
-        points)
-      </li>
-      <% }); %>
-    </ul>
-  </li>
+<div class="space-y-6">
+  <% games.forEach(function(game, index) { %>
+  <div class="bg-gray-800 shadow overflow-hidden sm:rounded-lg">
+    <div class="px-4 py-5 sm:px-6">
+      <h3 class="text-lg leading-6 font-medium text-gray-100">
+        Game #<%= game.id %>
+      </h3>
+    </div>
+    <div class="border-t border-gray-700">
+      <dl>
+        <% players.forEach(function(player, playerIndex) { %>
+        <div
+          class="<%= playerIndex % 2 === 0 ? 'bg-gray-800' : 'bg-gray-750' %> px-4 py-5 sm:grid sm:grid-cols-3 sm:gap-4 sm:px-6"
+        >
+          <dt class="text-sm font-medium text-gray-300"><%= player %></dt>
+          <dd class="mt-1 text-sm text-gray-100 sm:mt-0 sm:col-span-2">
+            <%= game[player.toLowerCase() + '_civ'] %> (<%=
+            game[player.toLowerCase() + '_points'] %> points)
+          </dd>
+        </div>
+        <% }); %>
+      </dl>
+    </div>
+  </div>
   <% }); %>
-</ul>
+</div>

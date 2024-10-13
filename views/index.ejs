@@ -5,112 +5,93 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>7 Wonders Game Tracker</title>
     <script src="https://unpkg.com/htmx.org@1.9.10"></script>
-    <style>
-      body {
-        font-family: Arial, sans-serif;
-        line-height: 1.6;
-        margin: 0;
-        padding: 20px;
-      }
-      h1,
-      h2 {
-        color: #333;
-      }
-      input,
-      button,
-      select {
-        margin: 5px 0;
-        padding: 5px;
-      }
-      ul {
-        list-style-type: none;
-        padding: 0;
-      }
-      li {
-        margin-bottom: 10px;
-      }
-      .player-input {
-        margin-bottom: 10px;
-        display: flex;
-        align-items: center;
-      }
-      .player-input button {
-        margin-left: 10px;
-      }
-    </style>
+    <link href="/styles.css" rel="stylesheet" />
   </head>
-  <body>
-    <h1>7 Wonders Game Tracker</h1>
+  <body
+    class="bg-gray-900 font-sans leading-normal tracking-normal text-gray-100"
+  >
+    <div class="container mx-auto px-4 py-8">
+      <h1 class="text-4xl font-bold mb-8 text-gray-100">
+        7 Wonders Game Tracker
+      </h1>
 
-    <h2>Add Game</h2>
-    <form
-      id="gameForm"
-      hx-post="/add-game"
-      hx-target="#game-history"
-      hx-swap="innerHTML"
-    >
-      <div id="players"></div>
-      <button type="button" onclick="addPlayer()">Add Player</button>
-      <button type="submit">Save Game</button>
-    </form>
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-300">Add Game</h2>
+        <form
+          id="gameForm"
+          hx-post="/add-game"
+          hx-target="#game-history-content"
+          hx-swap="innerHTML"
+          class="space-y-4"
+        >
+          <% players.forEach(function(player) { %>
+          <div class="flex items-center space-x-4">
+            <label class="w-24 font-medium text-gray-300"><%= player %>:</label>
+            <select
+              name="<%= player.toLowerCase() %>_civ"
+              required
+              class="form-select mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-100"
+            >
+              <% civilizations.forEach(function(civ) { %>
+              <option value="<%= civ %>"><%= civ %></option>
+              <% }); %>
+            </select>
+            <input
+              type="number"
+              name="<%= player.toLowerCase() %>_points"
+              placeholder="Points"
+              required
+              class="mt-1 block w-full py-2 px-3 border border-gray-600 bg-gray-800 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 text-gray-100"
+            />
+          </div>
+          <% }); %>
+          <button
+            type="submit"
+            class="py-2 px-4 bg-indigo-600 text-white font-semibold rounded-lg shadow-md hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-indigo-400 focus:ring-opacity-75"
+          >
+            Save Game
+          </button>
+        </form>
+      </section>
 
-    <h2>Game History</h2>
-    <div id="game-history" hx-get="/game-history" hx-trigger="load"></div>
+      <section class="mb-12">
+        <h2 class="text-2xl font-semibold mb-4 text-gray-300">Stats</h2>
+        <div id="stats" hx-get="/stats" hx-trigger="load"></div>
+      </section>
 
-    <h2>Stats</h2>
-    <div id="stats" hx-get="/stats" hx-trigger="load"></div>
-
-    <!-- Hidden div to store civilizations data -->
-    <div
-      id="civData"
-      data-civilizations="<%= JSON.stringify(civilizations) %>"
-      style="display: none"
-    ></div>
+      <section id="game-history" class="mb-12">
+        <button
+          type="button"
+          class="collapsible w-full py-2 px-4 bg-gray-800 text-left font-semibold rounded-lg shadow-md hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-600 focus:ring-opacity-75 text-gray-100"
+        >
+          Game History
+        </button>
+        <div
+          class="content hidden mt-4 bg-gray-800 shadow-md rounded-lg p-6"
+          id="game-history-content"
+          hx-get="/game-history"
+          hx-trigger="load"
+        ></div>
+      </section>
+    </div>
 
     <script>
-      const civilizationsData =
-        document.getElementById("civData").dataset.civilizations;
-      const civilizations = JSON.parse(civilizationsData);
-      let playerCount = 0;
+      document.addEventListener("DOMContentLoaded", (event) => {
+        var coll = document.getElementsByClassName("collapsible");
+        var i;
 
-      function addPlayer() {
-        if (playerCount >= 7) {
-          alert("Maximum 7 players allowed");
-          return;
+        for (i = 0; i < coll.length; i++) {
+          coll[i].addEventListener("click", function () {
+            this.classList.toggle("bg-gray-700"); // Changed
+            var content = this.nextElementSibling;
+            if (content.style.display === "block") {
+              content.style.display = "none";
+            } else {
+              content.style.display = "block";
+            }
+          });
         }
-        playerCount++;
-        const playerDiv = document.createElement("div");
-        playerDiv.className = "player-input";
-        playerDiv.id = `player-${playerCount}`;
-        playerDiv.innerHTML = `
-                <input type="text" name="players[${
-                  playerCount - 1
-                }][name]" placeholder="Player Name" required>
-                <select name="players[${
-                  playerCount - 1
-                }][civilization]" required>
-                    ${civilizations
-                      .map((civ) => `<option value="${civ}">${civ}</option>`)
-                      .join("")}
-                </select>
-                <input type="number" name="players[${
-                  playerCount - 1
-                }][points]" placeholder="Points" required>
-                <button type="button" onclick="removePlayer(${playerCount})">Remove</button>
-            `;
-        document.getElementById("players").appendChild(playerDiv);
-      }
-
-      function removePlayer(id) {
-        const playerDiv = document.getElementById(`player-${id}`);
-        if (playerDiv) {
-          playerDiv.remove();
-          playerCount--;
-        }
-      }
-
-      // Add initial player input
-      addPlayer();
+      });
     </script>
   </body>
 </html>

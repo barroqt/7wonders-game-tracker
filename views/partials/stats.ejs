@@ -1,15 +1,73 @@
-<% Object.entries(playerStats).forEach(([player, stats]) => { %>
-<h3><%= player %></h3>
-<% civilizations.forEach(civ => { %>
-<h4><%= civ %></h4>
-<% if (stats[civ]) { %>
-<ul>
-  <li>Winrate: <%= stats[civ].winrate %>%</li>
-  <li>Total games: <%= stats[civ].totalGames %></li>
-  <li>Wins: <%= stats[civ].wins %></li>
-  <li>Average points: <%= stats[civ].avgPoints %></li>
-  <li>Max points: <%= stats[civ].maxPoints %></li>
-</ul>
-<% } else { %>
-<p>No games played with this civilization.</p>
-<% } %> <% }); %> <% }); %>
+<div class="overflow-x-auto">
+  <table class="min-w-full bg-gray-800 border border-gray-700">
+    <thead class="bg-gray-900">
+      <tr>
+        <th
+          class="px-6 py-3 border-b border-gray-700 text-left text-xs leading-4 font-medium text-gray-300 uppercase tracking-wider"
+        >
+          Civilization
+        </th>
+        <% players.forEach(function(player) { %>
+        <th
+          class="px-6 py-3 border-b border-gray-700 text-left text-xs leading-4 font-medium text-gray-300 uppercase tracking-wider"
+        >
+          <%= player %>
+        </th>
+        <% }); %>
+      </tr>
+    </thead>
+    <tbody class="bg-gray-800">
+      <% civilizations.forEach(function(civ, index) { %>
+      <tr class="<%= index % 2 === 0 ? 'bg-gray-800' : 'bg-gray-750' %>">
+        <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-700">
+          <div class="text-sm leading-5 font-medium text-gray-300">
+            <%= civ %>
+          </div>
+        </td>
+        <% players.forEach(function(player) { %>
+        <td class="px-6 py-4 whitespace-no-wrap border-b border-gray-700">
+          <% if (playerStats[player] && playerStats[player][civ]) { %>
+          <div class="text-sm leading-5">
+            <span class="text-gray-400">Winrate: </span>
+            <span
+              class="font-semibold <%= parseFloat(playerStats[player][civ].winrate) > 50 ? 'text-green-400' : 'text-red-400' %>"
+            >
+              <%= playerStats[player][civ].winrate %>%
+            </span>
+          </div>
+          <div class="text-sm leading-5">
+            <span class="text-gray-400">Games: </span>
+            <span class="text-blue-400"
+              ><%= playerStats[player][civ].totalGames %></span
+            >
+          </div>
+          <div class="text-sm leading-5">
+            <span class="text-gray-400">Wins: </span>
+            <span class="text-green-400"
+              ><%= playerStats[player][civ].wins %></span
+            >
+          </div>
+          <div class="text-sm leading-5">
+            <span class="text-gray-400">Avg Points: </span>
+            <span class="text-yellow-400"
+              ><%= playerStats[player][civ].avgPoints %></span
+            >
+          </div>
+          <div class="text-sm leading-5">
+            <span class="text-gray-400">Max Points: </span>
+            <span class="text-purple-400"
+              ><%= playerStats[player][civ].maxPoints %></span
+            >
+          </div>
+          <% } else { %>
+          <div class="text-sm leading-5 text-gray-500 italic">
+            No games played
+          </div>
+          <% } %>
+        </td>
+        <% }); %>
+      </tr>
+      <% }); %>
+    </tbody>
+  </table>
+</div>

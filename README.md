@@ -18,7 +18,7 @@ After countless games of 7 wonders with my friends, we wanted to answer question
 So now whenever we finish a game I input the results (or write them down and input later) in order to let the data speak for itself.
 We have discovered many things about our playstyles since then.
 
-Although the UI is kinda sus at the moment, I hope this can help other 7 wonders players keep track of their games and get some juicy hindsights.
+I hope this can help other 7 wonders players keep track of their games and get some juicy hindsights.
 
 ## Installation
 
@@ -37,25 +37,22 @@ npm install -g pnpm
 
 ### Setup
 
-1. Clone the repository:
+1. Clone this repository
+2. Install dependencies with `pnpm install`
+3. Copy the `.env.example` file to `.env`:
 
 ```bash
-git clone https://github.com/barroqt/7wonders-game-tracker.git
-cd 7wonders-game-tracker
+cp .env.example .env
 ```
 
-2. Install dependencies:
+4. Edit the `.env` file to set your player names:
 
-```bash
-pnpm install
+```text
+PLAYER1=YourPlayer1Name
+PLAYER2=YourPlayer2Name
+PLAYER3=YourPlayer3Name
+# Add more players as needed, up to 7
 ```
 
-### Running the Application
-
-1. Start the server:
-
-```bash
-pnpm start
-```
-
-2. Open your web browser and navigate to `http://localhost:3000`
+5. Start the application with `pnpm start`
+6. Open your web browser and navigate to `http://localhost:3000`
