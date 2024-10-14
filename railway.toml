@@ -1,0 +1,10 @@
+[build]
+builder = "NIXPACKS"
+
+[deploy]
+startCommand = "node app.js"
+healthcheckPath = "/"
+healthcheckTimeout = 100
+
+[nixpacks]
+nodejs-version = "22"
