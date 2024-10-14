@@ -8,6 +8,8 @@ const port = process.env.PORT || 3000;
 const dbPath = process.env.DATABASE_URL || "./7wonders.db";
 const db = new sqlite3.Database(dbPath);
 
+app.use(express.static(path.join(__dirname, "public")));
+
 // Create or update the necessary tables
 db.serialize(() => {
   // Check if the games table exists

@@ -9,7 +9,10 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "node app.js",
-    "reset-db": "rm -f 7wonders.db 7wonders.db-journal 7wonders.db-wal 7wonders.db-shm && node app.js"
+    "reset-db": "rm -f 7wonders.db 7wonders.db-journal 7wonders.db-wal 7wonders.db-shm && node app.js",
+    "build:css": "tailwindcss -i ./styles.css -o ./public/styles.css --minify",
+    "watch:css": "tailwindcss -i ./styles.css -o ./public/styles.css --watch",
+    "dev": "tailwindcss -i ./styles.css -o ./public/styles.css --watch"
   },
   "keywords": [],
   "author": "",
