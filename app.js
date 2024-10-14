@@ -203,6 +203,46 @@ app.get("/stats", (req, res) => {
   );
 });
 
+app.delete("/delete-game/:id", (req, res) => {
+  const gameId = req.params.id;
+
+  db.run("DELETE FROM games WHERE id = ?", gameId, function (err) {
+    if (err) {
+      console.error(err);
+      return res.status(500).send("An error occurred while deleting the game");
+    }
+
+    if (this.changes === 0) {
+      return res.status(404).send("Game not found");
+    }
+
+    // After successful deletion, fetch updated game history
+    db.all("SELECT * FROM games ORDER BY id DESC", (err, games) => {
+      if (err) {
+        console.error(err);
+        return res
+          .status(500)
+          .send("An error occurred while fetching updated game history");
+      }
+
+      // Render the game history partial and send it back
+      res.render(
+        "partials/game-history",
+        { games, players: PLAYERS },
+        (err, html) => {
+          if (err) {
+            console.error(err);
+            return res
+              .status(500)
+              .send("An error occurred while rendering game history");
+          }
+          res.send(html);
+        }
+      );
+    });
+  });
+});
+
 app.listen(port, () => {
   console.log(`7 Wonders Tracker app listening at http://localhost:${port}`);
 });

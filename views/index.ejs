@@ -14,7 +14,6 @@
       <h1 class="text-4xl font-bold mb-8 text-gray-100">
         7 Wonders Game Tracker
       </h1>
-
       <section class="mb-12">
         <h2 class="text-2xl font-semibold mb-4 text-gray-300">Add Game</h2>
         <form
@@ -53,10 +52,13 @@
           </button>
         </form>
       </section>
-
       <section class="mb-12">
         <h2 class="text-2xl font-semibold mb-4 text-gray-300">Stats</h2>
-        <div id="stats" hx-get="/stats" hx-trigger="load"></div>
+        <div
+          id="stats"
+          hx-get="/stats"
+          hx-trigger="load, gameDeleted from:body"
+        ></div>
       </section>
 
       <section id="game-history" class="mb-12">
@@ -74,15 +76,13 @@
         ></div>
       </section>
     </div>
-
     <script>
       document.addEventListener("DOMContentLoaded", (event) => {
         var coll = document.getElementsByClassName("collapsible");
         var i;
-
         for (i = 0; i < coll.length; i++) {
           coll[i].addEventListener("click", function () {
-            this.classList.toggle("bg-gray-700"); // Changed
+            this.classList.toggle("bg-gray-700");
             var content = this.nextElementSibling;
             if (content.style.display === "block") {
               content.style.display = "none";
@@ -90,6 +90,12 @@
               content.style.display = "block";
             }
           });
+        }
+      });
+
+      document.body.addEventListener("htmx:afterOnLoad", function (event) {
+        if (event.detail.elt.id === "game-history-content") {
+          document.body.dispatchEvent(new Event("gameDeleted"));
         }
       });
     </script>
