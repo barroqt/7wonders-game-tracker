@@ -3,10 +3,10 @@ const sqlite3 = require("sqlite3").verbose();
 const path = require("path");
 
 const app = express();
-const port = 3000;
+const port = process.env.PORT || 3000;
 
-// Set up the database
-const db = new sqlite3.Database("7wonders.db");
+const dbPath = process.env.DATABASE_URL || "./7wonders.db";
+const db = new sqlite3.Database(dbPath);
 
 // Create or update the necessary tables
 db.serialize(() => {
