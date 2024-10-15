@@ -129,36 +129,48 @@ app.get("/game-history", (req, res) => {
 app.get("/stats", (req, res) => {
   db.all(
     `
+    WITH player_stats AS (
+      SELECT 
+        'Majid' as player, 
+        majid_civ as civilization, 
+        COUNT(*) as total_games,
+        SUM(CASE WHEN majid_points >= tito_points AND majid_points >= thomas_points THEN 1 ELSE 0 END) as wins,
+        AVG(majid_points) as avg_points,
+        MAX(majid_points) as max_points
+      FROM games
+      GROUP BY majid_civ
+      UNION ALL
+      SELECT 
+        'Tito' as player, 
+        tito_civ as civilization, 
+        COUNT(*) as total_games,
+        SUM(CASE WHEN tito_points >= majid_points AND tito_points >= thomas_points THEN 1 ELSE 0 END) as wins,
+        AVG(tito_points) as avg_points,
+        MAX(tito_points) as max_points
+      FROM games
+      GROUP BY tito_civ
+      UNION ALL
+      SELECT 
+        'Thomas' as player, 
+        thomas_civ as civilization, 
+        COUNT(*) as total_games,
+        SUM(CASE WHEN thomas_points >= majid_points AND thomas_points >= tito_points THEN 1 ELSE 0 END) as wins,
+        AVG(thomas_points) as avg_points,
+        MAX(thomas_points) as max_points
+      FROM games
+      GROUP BY thomas_civ
+    )
     SELECT 
-      'Majid' as player, 
-      majid_civ as civilization, 
-      COUNT(*) as total_games,
-      COALESCE(SUM(CASE WHEN majid_points >= tito_points AND majid_points >= thomas_points THEN 1 ELSE 0 END), 0) as wins,
-      COALESCE(AVG(majid_points), 0) as avg_points,
-      COALESCE(MAX(majid_points), 0) as max_points
-    FROM games
-    GROUP BY majid_civ
-    UNION ALL
-    SELECT 
-      'Tito' as player, 
-      tito_civ as civilization, 
-      COUNT(*) as total_games,
-      COALESCE(SUM(CASE WHEN tito_points >= majid_points AND tito_points >= thomas_points THEN 1 ELSE 0 END), 0) as wins,
-      COALESCE(AVG(tito_points), 0) as avg_points,
-      COALESCE(MAX(tito_points), 0) as max_points
-    FROM games
-    GROUP BY tito_civ
-    UNION ALL
-    SELECT 
-      'Thomas' as player, 
-      thomas_civ as civilization, 
-      COUNT(*) as total_games,
-      COALESCE(SUM(CASE WHEN thomas_points >= majid_points AND thomas_points >= tito_points THEN 1 ELSE 0 END), 0) as wins,
-      COALESCE(AVG(thomas_points), 0) as avg_points,
-      COALESCE(MAX(thomas_points), 0) as max_points
-    FROM games
-    GROUP BY thomas_civ
-  `,
+      player,
+      civilization,
+      total_games,
+      wins,
+      avg_points,
+      max_points,
+      SUM(wins) OVER (PARTITION BY player) as total_wins,
+      SUM(total_games) OVER (PARTITION BY player) as total_games_all
+    FROM player_stats
+    `,
     (err, stats) => {
       if (err) {
         console.error(err);
@@ -166,9 +178,13 @@ app.get("/stats", (req, res) => {
       }
 
       const playerStats = PLAYERS.reduce((acc, player) => {
-        acc[player] = {};
+        acc[player] = {
+          totalWins: 0,
+          totalGames: 0,
+          civilizations: {},
+        };
         CIVILIZATIONS.forEach((civ) => {
-          acc[player][civ] = {
+          acc[player].civilizations[civ] = {
             totalGames: 0,
             wins: 0,
             winrate: "0.00",
@@ -181,7 +197,7 @@ app.get("/stats", (req, res) => {
 
       stats.forEach((stat) => {
         if (stat.civilization) {
-          playerStats[stat.player][stat.civilization] = {
+          playerStats[stat.player].civilizations[stat.civilization] = {
             totalGames: stat.total_games,
             wins: stat.wins,
             winrate:
@@ -191,6 +207,8 @@ app.get("/stats", (req, res) => {
             avgPoints: stat.avg_points.toFixed(2),
             maxPoints: stat.max_points,
           };
+          playerStats[stat.player].totalWins = stat.total_wins;
+          playerStats[stat.player].totalGames = stat.total_games_all;
         }
       });
 
